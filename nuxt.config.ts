@@ -1,10 +1,10 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  sourcemap: {
-    server: false,
-    client: false,
-  },
-  ssr: false,
+  // sourcemap: {
+  //   server: false,
+  //   client: false,
+  // },
+  // ssr: false,
 
   modules: [
     '@nuxt/eslint',
