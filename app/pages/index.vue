@@ -1,7 +1,19 @@
 <script setup lang="ts">
 import { formatTimeAgo } from '@vueuse/core'
 
-const { data: releases } = await useFetch(`/api/releases`, {
+const route = useRoute()
+
+const apiUrl = computed(() => {
+  if (route.query.repos) {
+    const repos = Array.isArray(route.query.repos)
+      ? route.query.repos.join(',')
+      : route.query.repos
+    return `/api/releases?repos=${encodeURIComponent(repos)}`
+  }
+  return '/api/releases'
+})
+
+const { data: releases } = await useFetch(apiUrl, {
   transform: releases => releases.map((release: Release) => ({
     ...release,
     open: false
