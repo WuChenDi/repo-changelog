@@ -1,0 +1,34 @@
+{
+  "name": "nuxt-ui-template-changelog",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.67",
+    "@iconify-json/simple-icons": "^1.2.51",
+    "@nuxt/ui": "^4.0.0-alpha.1",
+    "@nuxtjs/mdc": "0.17.4",
+    "@vercel/analytics": "^1.5.0",
+    "@vueuse/nuxt": "13.9.0",
+    "nuxt": "4.1.1",
+    "vue": "^3.5.21"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.9.0",
+    "eslint": "^9.35.0",
+    "typescript": "^5.9.2",
+    "vue-tsc": "^3.0.6"
+  },
+  "resolutions": {
+    "unimport": "4.1.1"
+  },
+  "packageManager": "pnpm@10.15.1"
+}
