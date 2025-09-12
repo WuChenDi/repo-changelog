@@ -14,6 +14,7 @@ const apiUrl = computed(() => {
 })
 
 const { data: releases } = await useFetch(apiUrl, {
+  key: () => route.fullPath,
   transform: releases => releases.map((release: Release) => ({
     ...release,
     open: false
