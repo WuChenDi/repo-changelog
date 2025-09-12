@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   //   server: false,
   //   client: false,
   // },
-  ssr: false,
+  // ssr: false,
 
   modules: [
     '@nuxt/eslint',
