@@ -144,13 +144,13 @@ const sidebarDescription = computed(() => {
       >
         <template #top>
           <SkyBg />
-          <div class="absolute -right-1/2 z-[-1] rounded-full bg-primary blur-[300px] size-60 sm:size-100 transform -translate-y-1/2 top-1/2" />
+          <div class="absolute -right-1/2 z-[-1] rounded-full bg-primary/20 dark:bg-primary/30 blur-[300px] size-60 sm:size-100 transform -translate-y-1/2 top-1/2" />
         </template>
 
         <template #default>
           <div
             v-if="selectedRepos.length > 0"
-            class="mt-6 p-4 bg-muted/30 rounded-lg"
+            class="mt-6 p-4 bg-muted/30 rounded-lg border border-border/50"
           >
             <p class="text-sm font-medium text-muted-foreground mb-2">
               Tracking {{ selectedRepos.length }} {{ selectedRepos.length === 1 ? 'repository' : 'repositories' }}:
@@ -177,7 +177,7 @@ const sidebarDescription = computed(() => {
         </template>
       </UPageSection>
 
-      <section class="px-4 sm:px-6 xl:px-0 xl:-ms-30 xl:flex-1">
+      <section class="px-4 sm:px-6 xl:px-0 xl:-ms-30 xl:flex-1 bg-background">
         <UColorModeButton class="fixed top-4 right-4 z-10" />
         <NuxtPage />
       </section>
@@ -185,7 +185,7 @@ const sidebarDescription = computed(() => {
 
     <div
       v-else
-      class="min-h-screen w-full relative bg-black "
+      class="min-h-screen w-full relative bg-background dark:bg-black"
     >
       <UPageSection
         :title="siteConfig.title"
@@ -197,12 +197,12 @@ const sidebarDescription = computed(() => {
       >
         <template #top>
           <SkyBg />
-          <div class="absolute -right-1/2 z-[-1] rounded-full bg-primary blur-[300px] size-60 sm:size-100 transform -translate-y-1/2 top-1/2" />
+          <div class="absolute -right-1/2 z-[-1] rounded-full bg-primary/20 dark:bg-primary/30 blur-[300px] size-60 sm:size-100 transform -translate-y-1/2 top-1/2" />
         </template>
       </UPageSection>
 
-      <main class="px-4 sm:px-6 py-16">
-        <UColorModeButton class="fixed top-4 right-4 z-10" />
+      <main class="px-4 sm:px-6 pb-16 bg-background/50 dark:bg-transparent">
+        <UColorModeButton class="fixed top-4 right-4 z-10 backdrop-blur-sm bg-background/80 dark:bg-gray-900/80 rounded-full p-2" />
         <NuxtPage />
       </main>
     </div>

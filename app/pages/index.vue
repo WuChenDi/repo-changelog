@@ -248,7 +248,7 @@ function clearAllSelections() {
           {{ searchResults.length }}
         </UBadge>
       </h3>
-      <div class="grid gap-3">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         <div
           v-for="repo in searchResults"
           :key="repo.id"
@@ -260,29 +260,30 @@ function clearAllSelections() {
           }"
           @click="!selectedRepos.includes(repo.repo) && addSelectedRepository(repo.repo)"
         >
-          <div class="flex items-start justify-between">
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-2">
-                <h4 class="font-medium truncate">
-                  {{ repo.repo }}
-                </h4>
-                <UBadge
-                  v-if="selectedRepos.includes(repo.repo)"
-                  variant="solid"
-                  size="xs"
-                  color="primary"
-                >
-                  <UIcon
-                    name="i-lucide-check"
-                    class="w-3 h-3 mr-1"
-                  />
-                  Added
-                </UBadge>
-              </div>
-              <p class="text-sm text-muted-foreground mb-3 line-clamp-2">
-                {{ repo.description }}
-              </p>
-              <div class="flex items-center gap-4 text-xs text-muted-foreground">
+          <div class="flex flex-col h-full">
+            <div class="flex items-start justify-between mb-2">
+              <h4 class="font-medium truncate flex-1 min-w-0 pr-2">
+                {{ repo.repo }}
+              </h4>
+              <UBadge
+                v-if="selectedRepos.includes(repo.repo)"
+                variant="solid"
+                size="xs"
+                color="primary"
+                class="shrink-0"
+              >
+                <UIcon
+                  name="i-lucide-check"
+                  class="w-3 h-3 mr-1"
+                />
+                Added
+              </UBadge>
+            </div>
+            <p class="text-sm text-muted-foreground mb-3 flex-1 line-clamp-3">
+              {{ repo.description }}
+            </p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3 text-xs text-muted-foreground">
                 <div class="flex items-center gap-1">
                   <UIcon
                     name="i-lucide-star"
@@ -298,26 +299,26 @@ function clearAllSelections() {
                   {{ repo.forks.toLocaleString() }}
                 </div>
               </div>
+              <UButton
+                v-if="!selectedRepos.includes(repo.repo)"
+                size="xs"
+                icon="i-lucide-plus"
+                color="primary"
+                @click.stop="addSelectedRepository(repo.repo)"
+              >
+                Add
+              </UButton>
+              <UButton
+                v-else
+                size="xs"
+                icon="i-lucide-check"
+                color="primary"
+                variant="soft"
+                disabled
+              >
+                Added
+              </UButton>
             </div>
-            <UButton
-              v-if="!selectedRepos.includes(repo.repo)"
-              size="xs"
-              icon="i-lucide-plus"
-              color="primary"
-              @click.stop="addSelectedRepository(repo.repo)"
-            >
-              Add
-            </UButton>
-            <UButton
-              v-else
-              size="xs"
-              icon="i-lucide-check"
-              color="primary"
-              variant="soft"
-              disabled
-            >
-              Added
-            </UButton>
           </div>
         </div>
       </div>
