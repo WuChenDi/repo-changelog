@@ -1,43 +1,76 @@
-# Nuxt Changelog
+# Repository Changelog
 
-Example of listing releases from multiple GitHub repositories.
+Powerful web-based tool for tracking releases and changelogs from your favorite open source repositories. Monitor multiple GitHub projects in one unified dashboard.
 
-- [Live demo](https://nuxt-changelog.vercel.app/)
-- [Nuxt UI Changelog Template](https://github.com/nuxt-ui-templates/changelog)
+⚠️ **Privacy-focused** - All searches and selections are processed in your browser. No data is stored on our servers.
 
+## ✨ Features
 
-## Setup
+### 🔍 **Smart Repository Search**
+- 🎯 Search by repository name (`owner/repo`) or username/organization
+- 🚀 Real-time search with intelligent validation
+- 📊 Sort results by stars, forks, name, or last updated
+- 🏃‍♂️ Runs fully in the browser (no server queries for search logic)
+- 🔒 Privacy-focused
 
-Make sure to install the dependencies:
+**Supported Search Types:**
+- Individual repositories: `nuxt/nuxt`, `microsoft/vscode`
+- User repositories: `sindresorhus`, `tj`
+- Organization repositories: `vercel`, `nuxt`
+
+### 📋 **Multi-Repository Tracking** 
+- 🎨 Select and manage multiple repositories
+- 💾 Persistent selections via URL sharing
+- ⚡ Instant add/remove with visual feedback
+- 📱 Responsive selection interface
+- 🌐 Share repository combinations with others
+
+### 📰 **Unified Changelog Dashboard**
+- 🚀 Chronological timeline of releases across all selected repos
+- 🎚️ Expandable/collapsible release notes with full markdown rendering
+- 📏 Repository badges and metadata display
+- 💾 Direct links to GitHub releases
+- 🔒 Local processing ensures fast loading
+- 🌐 Beautiful responsive timeline design
+
+**Technologies:**
+- Powered by GitHub API for real-time release data
+- Markdown rendering with [@nuxtjs/mdc](https://content.nuxt.com/blog/mdc-syntax)
+- Browser-based processing with intelligent caching
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+
+- Modern browser (Chrome, Firefox, Safari, Edge)
+
+### Installation & Development
 
 ```bash
+# Clone the repository
+git clone https://github.com/WuChenDi/repo-changelog.git
+cd repo-changelog
+
+# Install dependencies
 pnpm install
-```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
+# Start development server
 pnpm dev
+# Server available at http://localhost:3000
 ```
 
-## Production
-
-Build the application for production:
+### Production Build
 
 ```bash
+# Build for production
 pnpm build
-```
 
-Locally preview production build:
-
-```bash
+# Preview production build
 pnpm preview
+
+# Deploy to your favorite platform
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## 📜 License
 
-## Renovate integration
-
-Install [Renovate GitHub app](https://github.com/apps/renovate/installations/select_target) on your repository and you are good to go.
+[MIT](./LICENSE) License &copy; 2025-PRESENT [wudi](https://github.com/WuChenDi)
