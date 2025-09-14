@@ -35,13 +35,13 @@ Powerful web-based tool for tracking releases and changelogs from your favorite 
 
 **Technologies:**
 - Powered by GitHub API for real-time release data
-- Markdown rendering with [@nuxtjs/mdc](https://content.nuxt.com/blog/mdc-syntax)
+- Markdown rendering with [@nuxtjs/mdc](https://github.com/nuxt-content/mdc)
 - Browser-based processing with intelligent caching
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 20+
 - Modern browser (Chrome, Firefox, Safari, Edge)
 
 ### Installation & Development
