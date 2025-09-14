@@ -136,7 +136,7 @@ async function searchRepositories() {
 
 async function searchSingleRepository(repoName: string) {
   try {
-    const response = await $fetch<RepoApiResponse>(`${config.apiUrl}/repos/${repoName}`)
+    const response = await $fetch<RepoApiResponse>(`${config.public.apiUrl}/repos/${repoName}`)
 
     if (response?.error) {
       searchError.value = 'Repository not found or inaccessible'
@@ -160,9 +160,9 @@ async function searchOwnerRepositories(owner: string) {
     let response: ReposApiResponse
 
     try {
-      response = await $fetch<ReposApiResponse>(`${config.apiUrl}/orgs/${owner}/repos`)
+      response = await $fetch<ReposApiResponse>(`${config.public.apiUrl}/orgs/${owner}/repos`)
     } catch {
-      response = await $fetch<ReposApiResponse>(`${config.apiUrl}/users/${owner}/repos`)
+      response = await $fetch<ReposApiResponse>(`${config.public.apiUrl}/users/${owner}/repos`)
     }
 
     if (response?.error) {
