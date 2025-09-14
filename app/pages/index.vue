@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { formatTimeAgo } from '@vueuse/core'
+import { parseMarkdown } from '@nuxtjs/mdc/runtime'
 import type { GithubRepo, RepoApiResponse, ReposApiResponse, SearchResult } from '~~/shared/types/releases'
 
 const config = useRuntimeConfig()
@@ -16,28 +17,88 @@ const showResults = ref<boolean>(false)
 const sortBy = ref<'stars' | 'forks' | 'name' | 'updated'>('stars')
 const sortOrder = ref<'asc' | 'desc'>('desc')
 
+const releases = ref<any[]>([])
+const releasesLoading = ref<boolean>(false)
+const releasesError = ref<string>('')
+
 const hasRepoQuery = computed(() => {
   return !!(route.query.repos && route.query.repos !== '')
 })
 
-const apiUrl = computed(() => {
-  if (!hasRepoQuery.value) return null
+function validateRepo(repo: string): boolean {
+  return /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/.test(repo)
+}
 
-  const repos = Array.isArray(route.query.repos)
-    ? route.query.repos.join(',')
-    : route.query.repos as string
-  return `/api/releases?repos=${encodeURIComponent(repos)}`
-})
+async function fetchRepoReleases(repo: string) {
+  try {
+    const response = await $fetch<{ releases: any[] }>(`${config.public.apiUrl}/repos/${repo}/releases`)
+    return await Promise.all(
+      response.releases
+        .filter(r => r.draft === false)
+        .map(async release => ({
+          url: `https://github.com/${repo}/releases/tag/${release.tag}`,
+          repo,
+          tag: release.tag,
+          title: release.name || release.tag,
+          date: release.publishedAt,
+          body: (await parseMarkdown(release.markdown)).body,
+          open: false
+        }))
+    )
+  } catch (error) {
+    console.warn(`Failed to fetch releases for ${repo}:`, error)
+    return []
+  }
+}
 
-const { data: releases } = await useFetch(apiUrl, {
-  key: () => route.fullPath,
-  transform: releases => releases?.map((release: any) => ({
-    ...release,
-    open: false
-  })) || [],
-  deep: true,
-  server: false
-})
+async function fetchReleases() {
+  if (!hasRepoQuery.value) return
+
+  releasesLoading.value = true
+  releasesError.value = ''
+
+  try {
+    let repos: string[] = []
+
+    if (route.query.repos) {
+      const repoParams = Array.isArray(route.query.repos)
+        ? route.query.repos
+        : route.query.repos.toString().split(',')
+
+      const validRepos = repoParams
+        .map(repo => repo?.trim())
+        .filter((repo): repo is string => repo != null && validateRepo(repo))
+
+      if (validRepos?.length > 0) {
+        repos = validRepos
+      }
+    }
+
+    const allReleases = await Promise.all(
+      repos.map(repo => fetchRepoReleases(repo))
+    )
+
+    releases.value = allReleases
+      .flat()
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 50)
+      .map(release => ({
+        ...release,
+        open: false
+      }))
+  } catch (error) {
+    console.error('Error fetching releases:', error)
+    releasesError.value = 'Failed to fetch releases'
+  } finally {
+    releasesLoading.value = false
+  }
+}
+
+watch(() => route.query.repos, async () => {
+  if (hasRepoQuery.value) {
+    await fetchReleases()
+  }
+}, { immediate: true })
 
 // Helper function to convert GithubRepo to SearchResult
 function convertToSearchResult(repo: GithubRepo): SearchResult {
@@ -52,7 +113,6 @@ function convertToSearchResult(repo: GithubRepo): SearchResult {
   }
 }
 
-// 排序选项
 const sortOptions = [
   { value: 'stars', label: 'Stars', icon: 'i-lucide-star' },
   { value: 'forks', label: 'Forks', icon: 'i-lucide-git-fork' },
@@ -535,15 +595,35 @@ function clearAllSelections() {
       indicator: 'inset-y-0'
     }"
   >
-    <div class="mb-6 sm:mb-8">
+    <div
+      v-if="releasesLoading"
+      class="text-center py-8"
+    >
+      <UIcon
+        name="i-lucide-loader-2"
+        class="w-8 h-8 animate-spin mx-auto mb-4"
+      />
+      <p class="text-muted-foreground">
+        Loading releases...
+      </p>
+    </div>
+
+    <div
+      v-else-if="releasesError"
+      class="text-center py-8"
+    >
+      <UIcon
+        name="i-lucide-alert-circle"
+        class="w-8 h-8 mx-auto mb-4 text-red-500"
+      />
+      <p class="text-red-500 mb-4">
+        {{ releasesError }}
+      </p>
       <UButton
-        variant="ghost"
-        icon="i-lucide-arrow-left"
-        size="sm"
-        class="w-full sm:w-auto justify-center"
-        @click="$router.push('/')"
+        variant="outline"
+        @click="fetchReleases"
       >
-        Back to Repository Selection
+        Retry
       </UButton>
     </div>
 
@@ -579,7 +659,7 @@ function clearAllSelections() {
           <MDCRenderer
             v-if="release.body"
             :body="release.body"
-            :style="{ zoom: window.innerWidth < 768 ? '0.75' : '0.85' }"
+            style="zoom: 0.85"
           />
           <div
             v-if="!release.open && release.body.children.length > 4"

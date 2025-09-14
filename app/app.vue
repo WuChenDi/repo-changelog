@@ -167,6 +167,17 @@ const sidebarDescription = computed(() => {
             v-if="selectedRepos.length > 0"
             class="mt-6 p-4 bg-muted/30 rounded-lg border border-border/50"
           >
+            <div class="mb-6 sm:mb-8">
+              <UButton
+                variant="ghost"
+                icon="i-lucide-arrow-left"
+                size="sm"
+                class="w-full sm:w-auto justify-center"
+                @click="$router.push('/')"
+              >
+                Back to Repository Selection
+              </UButton>
+            </div>
             <p class="text-sm font-medium text-muted-foreground mb-2">
               Tracking {{ selectedRepos.length }} {{ selectedRepos.length === 1 ? 'repository' : 'repositories' }}:
             </p>
