@@ -128,15 +128,15 @@ onMounted(() => {
           size: 'md',
           to: 'https://github.com/WuChenDi/repo-changelog',
           target: '_blank'
-        },
-        {
-          label: 'Documentation',
-          icon: 'i-lucide-book-open',
-          variant: 'outline',
-          size: 'md',
-          to: 'https://github.com/WuChenDi/repo-changelog',
-          target: '_blank'
         }
+        // {
+        //   label: 'More',
+        //   icon: 'i-lucide-external-link',
+        //   variant: 'outline',
+        //   size: 'md',
+        //   to: 'https://notes-wudi.pages.dev/projects',
+        //   target: '_blank'
+        // }
       ]"
       :ui="{
         root: 'border-b border-default xl:border-b-0 xl:sticky xl:inset-y-0 xl:h-screen overflow-hidden',
@@ -275,9 +275,9 @@ onMounted(() => {
           target="_blank"
           :title="release.title"
           :badge="{
-            label: release.repo === 'nuxt/nuxt' ? 'nuxt' : `@${release.repo}`,
+            label: `@${release.repo}`,
             variant: 'outline',
-            color: release.repo === 'nuxt/nuxt' ? 'primary' : 'neutral'
+            color: 'neutral'
           }"
           :date="formatTimeAgo(new Date(release.date))"
           :ui="{

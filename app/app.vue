@@ -19,15 +19,15 @@ const siteConfig = {
         size: 'md',
         to: 'https://github.com/WuChenDi/repo-changelog',
         target: '_blank'
-      },
-      {
-        label: 'Documentation',
-        icon: 'i-lucide-book-open',
-        variant: 'outline',
-        size: 'md',
-        to: 'https://github.com/WuChenDi/repo-changelog',
-        target: '_blank'
       }
+      // {
+      //   label: 'More',
+      //   icon: 'i-lucide-external-link',
+      //   variant: 'outline',
+      //   size: 'md',
+      //   to: 'https://notes-wudi.pages.dev/projects',
+      //   target: '_blank'
+      // }
     ]
   },
   meta: {
