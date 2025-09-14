@@ -1,7 +1,14 @@
 {
-  "name": "nuxt-ui-template-changelog",
+  "name": "repo-changelog",
+  "version": "1.0.0",
   "private": true,
-  "type": "module",
+  "description": "Track the latest releases and changelogs from your favorite open source repositories",
+  "author": "wudi <wuchendi96@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "http",
+    "url": "https://github.com/WuChenDi/repo-changelog.git"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
