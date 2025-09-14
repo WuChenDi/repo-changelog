@@ -4,6 +4,12 @@ Powerful web-based tool for tracking releases and changelogs from your favorite 
 
 ⚠️ **Privacy-focused** - All searches and selections are processed in your browser. No data is stored on our servers.
 
+<details>
+  <summary>🔍 Preview</summary>
+  <img src="https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/repo-changelog/index.png" />
+  <img src="https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/repo-changelog/repos.png" />
+</details>
+
 ## ✨ Features
 
 ### 🔍 **Smart Repository Search**
@@ -16,7 +22,7 @@ Powerful web-based tool for tracking releases and changelogs from your favorite 
 **Supported Search Types:**
 - Individual repositories: `nuxt/nuxt`, `microsoft/vscode`
 - User repositories: `sindresorhus`, `tj`
-- Organization repositories: `vercel`, `nuxt`
+- Organization repositories: `vercel`, `better-auth`
 
 ### 📋 **Multi-Repository Tracking** 
 - 🎨 Select and manage multiple repositories
