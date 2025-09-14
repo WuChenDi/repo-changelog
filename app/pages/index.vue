@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { formatTimeAgo } from '@vueuse/core'
-import { parseMarkdown } from '@nuxtjs/mdc/runtime'
 import type { GithubRepo, RepoApiResponse, ReposApiResponse, SearchResult } from '~~/shared/types/releases'
 
 const config = useRuntimeConfig()
-
-const route = useRoute()
 const router = useRouter()
 
 const selectedRepos = ref<string[]>([])
@@ -16,89 +13,6 @@ const searchResults = ref<SearchResult[]>([])
 const showResults = ref<boolean>(false)
 const sortBy = ref<'stars' | 'forks' | 'name' | 'updated'>('stars')
 const sortOrder = ref<'asc' | 'desc'>('desc')
-
-const releases = ref<any[]>([])
-const releasesLoading = ref<boolean>(false)
-const releasesError = ref<string>('')
-
-const hasRepoQuery = computed(() => {
-  return !!(route.query.repos && route.query.repos !== '')
-})
-
-function validateRepo(repo: string): boolean {
-  return /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/.test(repo)
-}
-
-async function fetchRepoReleases(repo: string) {
-  try {
-    const response = await $fetch<{ releases: any[] }>(`${config.public.apiUrl}/repos/${repo}/releases`)
-    return await Promise.all(
-      response.releases
-        .filter(r => r.draft === false)
-        .map(async release => ({
-          url: `https://github.com/${repo}/releases/tag/${release.tag}`,
-          repo,
-          tag: release.tag,
-          title: release.name || release.tag,
-          date: release.publishedAt,
-          body: (await parseMarkdown(release.markdown)).body,
-          open: false
-        }))
-    )
-  } catch (error) {
-    console.warn(`Failed to fetch releases for ${repo}:`, error)
-    return []
-  }
-}
-
-async function fetchReleases() {
-  if (!hasRepoQuery.value) return
-
-  releasesLoading.value = true
-  releasesError.value = ''
-
-  try {
-    let repos: string[] = []
-
-    if (route.query.repos) {
-      const repoParams = Array.isArray(route.query.repos)
-        ? route.query.repos
-        : route.query.repos.toString().split(',')
-
-      const validRepos = repoParams
-        .map(repo => repo?.trim())
-        .filter((repo): repo is string => repo != null && validateRepo(repo))
-
-      if (validRepos?.length > 0) {
-        repos = validRepos
-      }
-    }
-
-    const allReleases = await Promise.all(
-      repos.map(repo => fetchRepoReleases(repo))
-    )
-
-    releases.value = allReleases
-      .flat()
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 50)
-      .map(release => ({
-        ...release,
-        open: false
-      }))
-  } catch (error) {
-    console.error('Error fetching releases:', error)
-    releasesError.value = 'Failed to fetch releases'
-  } finally {
-    releasesLoading.value = false
-  }
-}
-
-watch(() => route.query.repos, async () => {
-  if (hasRepoQuery.value) {
-    await fetchReleases()
-  }
-}, { immediate: true })
 
 // Helper function to convert GithubRepo to SearchResult
 function convertToSearchResult(repo: GithubRepo): SearchResult {
@@ -116,7 +30,7 @@ function convertToSearchResult(repo: GithubRepo): SearchResult {
 const sortOptions = [
   { value: 'stars', label: 'Stars', icon: 'i-lucide-star' },
   { value: 'forks', label: 'Forks', icon: 'i-lucide-git-fork' },
-  { value: 'name', label: 'Name', icon: 'i-lucide-type' },
+  // { value: 'name', label: 'Name', icon: 'i-lucide-type' },
   { value: 'updated', label: 'Updated', icon: 'i-lucide-calendar' }
 ]
 
@@ -272,6 +186,7 @@ async function viewReleases() {
 
   try {
     await router.push({
+      path: '/repos',
       query: {
         repos: selectedRepos.value.join(',')
       }
@@ -287,10 +202,7 @@ function clearAllSelections() {
 </script>
 
 <template>
-  <div
-    v-if="!hasRepoQuery"
-    class="max-w-4xl mx-auto px-4 sm:px-6"
-  >
+  <div class="max-w-4xl mx-auto px-4 sm:px-6">
     <div class="mb-6 sm:mb-8">
       <h3 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 flex items-center gap-2">
         <UIcon
@@ -567,6 +479,7 @@ function clearAllSelections() {
       </div>
     </div>
 
+    <!-- Empty State -->
     <div
       v-else
       class="text-center py-8 sm:py-12"
@@ -585,101 +498,4 @@ function clearAllSelections() {
       </div>
     </div>
   </div>
-
-  <UChangelogVersions
-    v-else
-    as="main"
-    :indicator-motion="false"
-    :ui="{
-      root: 'py-8 sm:py-16 md:py-24 lg:py-32 px-4 sm:px-6',
-      indicator: 'inset-y-0'
-    }"
-  >
-    <div
-      v-if="releasesLoading"
-      class="text-center py-8"
-    >
-      <UIcon
-        name="i-lucide-loader-2"
-        class="w-8 h-8 animate-spin mx-auto mb-4"
-      />
-      <p class="text-muted-foreground">
-        Loading releases...
-      </p>
-    </div>
-
-    <div
-      v-else-if="releasesError"
-      class="text-center py-8"
-    >
-      <UIcon
-        name="i-lucide-alert-circle"
-        class="w-8 h-8 mx-auto mb-4 text-red-500"
-      />
-      <p class="text-red-500 mb-4">
-        {{ releasesError }}
-      </p>
-      <UButton
-        variant="outline"
-        @click="fetchReleases"
-      >
-        Retry
-      </UButton>
-    </div>
-
-    <UChangelogVersion
-      v-for="release in releases"
-      :key="release.tag"
-      :to="release.url"
-      target="_blank"
-      :title="release.title"
-      :badge="{
-        label: release.repo === 'nuxt/nuxt' ? 'nuxt' : `@${release.repo}`,
-        variant: 'outline',
-        color: release.repo === 'nuxt/nuxt' ? 'primary' : 'neutral'
-      }"
-      :date="formatTimeAgo(new Date(release.date))"
-      :ui="{
-        root: 'flex items-start',
-        container: 'max-w-xl 2xl:mx-12 w-full',
-        header: 'border-b border-default pb-3 sm:pb-4',
-        title: 'text-xl sm:text-2xl lg:text-3xl',
-        date: 'text-xs/6 sm:text-xs/9 text-highlighted font-mono',
-        indicator: 'sticky top-0 pt-8 -mt-8 sm:pt-16 sm:-mt-16 md:pt-24 md:-mt-24 lg:pt-32 lg:-mt-32'
-      }"
-    >
-      <template #body>
-        <div
-          class="relative"
-          :class="{
-            'h-auto min-h-[150px] sm:min-h-[200px]': release.open,
-            'h-[150px] sm:h-[200px] overflow-y-hidden': !release.open && release.body.children.length > 4
-          }"
-        >
-          <MDCRenderer
-            v-if="release.body"
-            :body="release.body"
-            style="zoom: 0.85"
-          />
-          <div
-            v-if="!release.open && release.body.children.length > 4"
-            class="h-12 sm:h-16 absolute inset-x-0 bottom-0 flex items-end justify-center"
-            :class="{ 'bg-gradient-to-t from-default to-default/50': !release.open }"
-          >
-            <UButton
-              size="sm"
-              icon="i-lucide-chevron-down"
-              color="neutral"
-              variant="outline"
-              :data-state="release.open ? 'open' : 'closed'"
-              :label="release.open ? 'Collapse' : 'Expand'"
-              class="group text-xs sm:text-sm"
-              :ui="{ leadingIcon: 'group-data-[state=open]:rotate-180' }"
-              @click="release.open = !release.open"
-            />
-          </div>
-        </div>
-      </template>
-    </UChangelogVersion>
-  </UChangelogVersions>
 </template>
