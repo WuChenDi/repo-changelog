@@ -1,18 +1,5 @@
 import { parseMarkdown } from '@nuxtjs/mdc/runtime'
 
-const DEFAULT_REPOS = [
-  'nuxt/nuxt',
-  'nuxt/image',
-  'nuxt/fonts',
-  'nuxt/ui',
-  'nuxt/content',
-  'nuxt/devtools',
-  'nuxt/test-utils',
-  'nuxt/scripts',
-  'nuxt/eslint',
-  'nuxt/icon'
-]
-
 function validateRepo(repo: string): boolean {
   return /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/.test(repo)
 }
@@ -20,32 +7,37 @@ function validateRepo(repo: string): boolean {
 export default defineCachedEventHandler(async (event) => {
   console.log('fetching releases')
 
+  const config = useRuntimeConfig()
   const query = getQuery(event)
-  let repos: string[] = DEFAULT_REPOS
 
-  if (query.repos) {
-    // ?repos=nuxt/nuxt,nuxt/ui
-    // ?repos=nuxt/nuxt&repos=nuxt/ui
-    const repoParams = Array.isArray(query.repos)
-      ? query.repos
-      : query.repos.toString().split(',')
-
-    const validRepos = repoParams
-      .map(repo => repo.trim())
-      .filter(repo => repo && validateRepo(repo))
-
-    if (validRepos.length > 0) {
-      repos = validRepos
-    }
+  if (!query.repos) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'No repositories specified'
+    })
   }
 
-  repos = repos.slice(0, 20)
+  // Parse repository parameters
+  const repoParams = Array.isArray(query.repos)
+    ? query.repos
+    : query.repos.toString().split(',')
+
+  const repos = repoParams
+    .map(repo => repo.trim())
+    .filter(repo => repo && validateRepo(repo))
+
+  if (repos.length === 0) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'No valid repositories provided'
+    })
+  }
 
   try {
     const releases: Release[] = await Promise.all(
       repos.map(async (repo) => {
         try {
-          const { releases } = await $fetch<{ releases: any[] }>(`https://ungh.cc/repos/${repo}/releases`)
+          const { releases } = await $fetch<{ releases: any[] }>(`${config.apiUrl}/repos/${repo}/releases`)
           return Promise.all(
             releases
               .filter(r => r.draft === false)
@@ -77,7 +69,7 @@ export default defineCachedEventHandler(async (event) => {
   maxAge: 60,
   getKey: (event) => {
     const query = getQuery(event)
-    const repos = query.repos || 'default'
+    const repos = query.repos
     return `releases:${Array.isArray(repos) ? repos.join(',') : repos}`
   }
 })

@@ -53,6 +53,7 @@ export interface SearchResult {
   description: string
   stars: number
   forks: number
+  updatedAt: string
 }
 
 export interface RepoApiResponse {

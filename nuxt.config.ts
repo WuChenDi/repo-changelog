@@ -1,3 +1,5 @@
+const defaultApiUrl = 'https://unghs.vercel.app' // 'https://ungh.cc'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   // sourcemap: {
@@ -17,10 +19,6 @@ export default defineNuxtConfig({
     enabled: true
   },
 
-  devServer: {
-    host: '0.0.0.0',
-  },
-
   css: ['~/assets/css/main.css'],
 
   mdc: {
@@ -36,9 +34,19 @@ export default defineNuxtConfig({
       }
     }
   },
+  runtimeConfig: {
+    apiUrl: process.env.API_URL || defaultApiUrl,
+    public: {
+      apiUrl: process.env.API_URL || defaultApiUrl
+    }
+  },
 
   routeRules: {
     '/': { isr: 60 }
+  },
+
+  devServer: {
+    host: '0.0.0.0'
   },
 
   compatibilityDate: '2025-06-01',

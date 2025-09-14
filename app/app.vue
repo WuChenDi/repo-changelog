@@ -25,12 +25,13 @@ const siteConfig = {
         icon: 'i-lucide-book-open',
         variant: 'outline',
         size: 'md',
-        to: '/docs'
+        to: 'https://github.com/WuChenDi/repo-changelog',
+        target: '_blank'
       }
     ]
   },
   meta: {
-    favicon: 'https://notes-wudi.pages.dev/images/logo.png',
+    favicon: '/logo.svg',
     lang: 'en',
     keywords: [
       'repository changelog',
@@ -125,7 +126,7 @@ const sidebarDescription = computed(() => {
   <UApp>
     <div
       v-if="showSidebar"
-      class="min-h-screen xl:grid xl:grid-cols-2"
+      class="min-h-[calc(100vh-68px)] xl:grid xl:grid-cols-2"
     >
       <UPageSection
         :title="sidebarTitle"
@@ -139,12 +140,26 @@ const sidebarDescription = computed(() => {
           headline: 'mb-6',
           title: 'text-left text-4xl',
           description: 'text-left max-w-lg',
-          links: 'gap-1 justify-start -ms-2.5'
+          links: 'justify-start'
         }"
       >
         <template #top>
           <SkyBg />
-          <div class="absolute -right-1/2 z-[-1] rounded-full bg-primary/20 dark:bg-primary/30 blur-[300px] size-60 sm:size-100 transform -translate-y-1/2 top-1/2" />
+          <div
+            class="absolute inset-0 z-[-1]"
+            :style="{
+              backgroundImage: `
+                  linear-gradient(to right, rgba(99, 102, 241, 0.4) 0%, transparent 1px),
+                  linear-gradient(to bottom, rgba(181, 184, 208, 0.3) 0%, transparent 1px)
+                `,
+              backgroundSize: `40px 40px`,
+              WebkitMaskImage:
+                `radial-gradient(ellipse 100% 100% at 50% 0%, #000 90%, transparent 100%)`,
+              maskImage:
+                `radial-gradient(ellipse 100% 100% at 50% 0%, #000 90%, transparent 100%)`
+            }"
+          />
+          <!-- <div class="absolute -right-1/2 z-[-1] rounded-full bg-primary/20 dark:bg-primary/30 blur-[300px] size-60 sm:size-100 transform -translate-y-1/2 top-1/2" /> -->
         </template>
 
         <template #default>
@@ -185,19 +200,31 @@ const sidebarDescription = computed(() => {
 
     <div
       v-else
-      class="min-h-screen w-full relative bg-background dark:bg-black"
+      class="min-h-[calc(100vh-68px)] w-full relative bg-background dark:bg-black"
     >
       <UPageSection
         :title="siteConfig.title"
         :description="siteConfig.description"
         :links="siteConfig.navigation.links"
         orientation="vertical"
-        icon="i-lucide-rocket"
         class="relative overflow-hidden"
       >
         <template #top>
           <SkyBg />
-          <div class="absolute -right-1/2 z-[-1] rounded-full bg-primary/20 dark:bg-primary/30 blur-[300px] size-60 sm:size-100 transform -translate-y-1/2 top-1/2" />
+          <div
+            class="absolute inset-0 z-[-1]"
+            :style="{
+              backgroundImage: `
+                  linear-gradient(to right, rgba(99, 102, 241, 0.4) 0%, transparent 1px),
+                  linear-gradient(to bottom, rgba(181, 184, 208, 0.3) 0%, transparent 1px)
+                `,
+              backgroundSize: `40px 40px`,
+              WebkitMaskImage:
+                `radial-gradient(ellipse 100% 90% at 50% 0%, #000 90%, transparent 100%)`,
+              maskImage:
+                `radial-gradient(ellipse 100% 90% at 50% 0%, #000 90%, transparent 100%)`
+            }"
+          />
         </template>
       </UPageSection>
 
@@ -206,5 +233,18 @@ const sidebarDescription = computed(() => {
         <NuxtPage />
       </main>
     </div>
+
+    <footer class="w-full px-4 sm:px-6 py-6 text-center">
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Copyright (c) 2025-PRESENT |
+        <ULink
+          to="https://github.com/WuChenDi"
+          target="_blank"
+          class="text-primary hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
+        >
+          wudi
+        </ULink>
+      </p>
+    </footer>
   </UApp>
 </template>
