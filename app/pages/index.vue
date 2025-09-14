@@ -324,20 +324,33 @@ function clearAllSelections() {
           }"
           @click="toggleRepository(repo.repo)"
         >
-          <div
-            v-if="selectedRepos.includes(repo.repo)"
-            class="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent pointer-events-none"
-          />
-
-          <div
-            v-if="selectedRepos.includes(repo.repo)"
-            class="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-primary rounded-full flex items-center justify-center shadow-lg transform rotate-12 animate-pulse"
-          >
-            <UIcon
-              name="i-lucide-check"
-              class="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white"
+          <template v-if="selectedRepos.includes(repo.repo)">
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent pointer-events-none"
             />
-          </div>
+
+            <div
+              v-if="selectedRepos.includes(repo.repo)"
+              class="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-primary rounded-full flex items-center justify-center shadow-lg transform rotate-12 animate-pulse"
+            >
+              <UIcon
+                name="i-lucide-check"
+                class="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white"
+              />
+            </div>
+          </template>
+          <div
+            v-else
+            class="absolute inset-0 z-0"
+            :style="{
+              background: `
+                radial-gradient(ellipse 110% 70% at 25% 80%, rgba(147, 51, 234, 0.12), transparent 55%),
+                radial-gradient(ellipse 130% 60% at 75% 15%, rgba(59, 130, 246, 0.10), transparent 65%),
+                radial-gradient(ellipse 80% 90% at 20% 30%, rgba(236, 72, 153, 0.14), transparent 50%),
+                radial-gradient(ellipse 100% 40% at 60% 70%, rgba(16, 185, 129, 0.08), transparent 45%
+              `
+            }"
+          />
 
           <div class="relative z-10 flex flex-col h-full">
             <div class="flex items-start justify-between mb-2">
@@ -418,10 +431,9 @@ function clearAllSelections() {
           />
           Selected Repositories
           <UBadge
-            variant="solid"
+            variant="outline"
             color="primary"
             size="sm"
-            class="animate-pulse"
           >
             {{ selectedRepos.length }}
           </UBadge>
@@ -479,7 +491,6 @@ function clearAllSelections() {
       </div>
     </div>
 
-    <!-- Empty State -->
     <div
       v-else
       class="text-center py-8 sm:py-12"
