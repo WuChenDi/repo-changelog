@@ -4,11 +4,10 @@ Powerful web-based tool for tracking releases and changelogs from your favorite 
 
 ⚠️ **Privacy-focused** - All searches and selections are processed in your browser. No data is stored on our servers.
 
-<details>
-  <summary>🔍 Preview</summary>
-  <img src="https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/repo-changelog/index.png" />
-  <img src="https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/repo-changelog/repos.png" />
-</details>
+Preview: https://repo-changelog.vercel.app/
+
+![](https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/repo-changelog/index.png)
+![](https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/repo-changelog/repos.png)
 
 ## ✨ Features
 
