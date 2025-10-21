@@ -1,4 +1,4 @@
-const defaultApiUrl = 'https://unghs.vercel.app' // 'https://ungh.cc'
+const defaultApiUrl = 'https://ungh.cc' // 'https://unghs.vercel.app'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
