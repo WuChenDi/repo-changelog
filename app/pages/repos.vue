@@ -213,7 +213,7 @@ onMounted(() => {
         as="main"
         :indicator-motion="false"
         :ui="{
-          root: 'py-8 sm:py-16 md:py-24 lg:py-32 px-4 sm:px-6',
+          root: 'py-16 sm:py-24 lg:py-32',
           indicator: 'inset-y-0'
         }"
       >
@@ -283,10 +283,10 @@ onMounted(() => {
           :ui="{
             root: 'flex items-start',
             container: 'max-w-xl 2xl:mx-12 w-full',
-            header: 'border-b border-default pb-3 sm:pb-4',
-            title: 'text-xl sm:text-2xl lg:text-3xl',
-            date: 'text-xs/6 sm:text-xs/9 text-highlighted font-mono',
-            indicator: 'sticky top-0 pt-8 -mt-8 sm:pt-16 sm:-mt-16 md:pt-24 md:-mt-24 lg:pt-32 lg:-mt-32'
+            header: 'border-b border-default pb-4',
+            title: 'text-3xl',
+            date: 'text-xs/9 text-highlighted font-mono',
+            indicator: 'sticky top-0 pt-16 -mt-16 sm:pt-24 sm:-mt-24 lg:pt-32 lg:-mt-32'
           }"
         >
           <template #body>
