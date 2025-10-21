@@ -80,26 +80,66 @@ async function searchRepositories() {
   showResults.value = false
 
   if (!searchQuery.value.trim()) {
-    searchError.value = 'Please enter a repository name, username, or organization name'
+    searchError.value = 'Please enter a repository, username, organization, or GitHub URL'
     return
   }
 
   const input = searchQuery.value.trim()
+
+  const githubUrlMatch = input.match(/github\.com\/([a-zA-Z0-9._-]+(?:\/[a-zA-Z0-9._-]+)?)/i)
+  if (githubUrlMatch && githubUrlMatch[1]) {
+    const extracted = githubUrlMatch[1]
+
+    if (extracted.includes('/')) {
+      isLoading.value = true
+
+      try {
+        const { data: response, error } = await useFetch<RepoApiResponse>(
+          `${config.public.apiUrl}/repos/${extracted}`,
+          {
+            key: `repo-validate-${extracted}`,
+            getCachedData: key => useNuxtApp().payload.data[key] || useNuxtApp().static.data[key]
+          }
+        )
+
+        if (error.value || response.value?.error || !response.value?.repo) {
+          searchError.value = 'Repository not found. Please check the URL and try again.'
+          return
+        }
+
+        await router.push({
+          path: '/repos',
+          query: { repos: extracted }
+        })
+        return
+      } catch (error) {
+        console.error('Repository validation error:', error)
+        searchError.value = 'Failed to verify repository. Please try again.'
+        return
+      } finally {
+        isLoading.value = false
+      }
+    } else {
+      searchQuery.value = extracted
+    }
+  }
+
+  const processedInput = searchQuery.value.trim()
   isLoading.value = true
 
   try {
-    if (input.includes('/')) {
-      if (!validateRepoFormat(input)) {
+    if (processedInput.includes('/')) {
+      if (!validateRepoFormat(processedInput)) {
         searchError.value = 'Invalid format. Please use: owner/repository'
         return
       }
-      await searchSingleRepository(input)
+      await searchSingleRepository(processedInput)
     } else {
-      if (!validateOwnerFormat(input)) {
+      if (!validateOwnerFormat(processedInput)) {
         searchError.value = 'Please enter a valid username or organization name'
         return
       }
-      await searchOwnerRepositories(input)
+      await searchOwnerRepositories(processedInput)
     }
   } catch (error) {
     console.error('Search error:', error)
@@ -249,7 +289,7 @@ function openRepoLink(event: Event, repoName: string) {
           <UInput
             v-model="searchQuery"
             :loading="isLoading"
-            placeholder="Enter repository, username, or organization"
+            placeholder="Enter repository, username, organization, or GitHub URL"
             class="flex-1 text-sm sm:text-base"
             icon="i-lucide-search"
             :color="searchError ? 'error' : 'primary'"
