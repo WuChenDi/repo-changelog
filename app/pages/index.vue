@@ -4,6 +4,7 @@ import type { GithubRepo, RepoApiResponse, ReposApiResponse, SearchResult } from
 
 const config = useRuntimeConfig()
 const router = useRouter()
+const { getRepoUrl } = useRepository()
 
 const selectedRepos = ref<string[]>([])
 const searchQuery = ref<string>('')
@@ -199,6 +200,11 @@ async function viewReleases() {
 function clearAllSelections() {
   selectedRepos.value = []
 }
+
+function openRepoLink(event: Event, repoName: string) {
+  event.stopPropagation()
+  window.open(getRepoUrl(repoName), '_blank')
+}
 </script>
 
 <template>
@@ -347,7 +353,7 @@ function clearAllSelections() {
                 radial-gradient(ellipse 110% 70% at 25% 80%, rgba(147, 51, 234, 0.12), transparent 55%),
                 radial-gradient(ellipse 130% 60% at 75% 15%, rgba(59, 130, 246, 0.10), transparent 65%),
                 radial-gradient(ellipse 80% 90% at 20% 30%, rgba(236, 72, 153, 0.14), transparent 50%),
-                radial-gradient(ellipse 100% 40% at 60% 70%, rgba(16, 185, 129, 0.08), transparent 45%
+                radial-gradient(ellipse 100% 40% at 60% 70%, rgba(16, 185, 129, 0.08), transparent 45%)
               `
             }"
           />
@@ -367,6 +373,14 @@ function clearAllSelections() {
                 />
                 <span class="break-all">{{ repo.repo }}</span>
               </h4>
+              <UButton
+                icon="i-lucide-external-link"
+                variant="ghost"
+                size="xs"
+                color="neutral"
+                class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                @click="(e) => openRepoLink(e, repo.repo)"
+              />
             </div>
             <p class="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3 flex-1 line-clamp-2 sm:line-clamp-3">
               {{ repo.description }}
@@ -451,24 +465,32 @@ function clearAllSelections() {
       </div>
 
       <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
-        <UBadge
+        <div
           v-for="repo in selectedRepos"
           :key="repo"
-          variant="outline"
-          size="sm"
-          class="group cursor-pointer hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all duration-200 px-2 sm:px-3 py-1 sm:py-1.5 animate-in slide-in-from-bottom-2"
-          @click="removeRepository(repo)"
+          class="group inline-flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 border border-default rounded-full text-xs sm:text-sm transition-all duration-200 animate-in slide-in-from-bottom-2"
         >
           <UIcon
             name="i-lucide-github"
-            class="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1"
+            class="w-2.5 h-2.5 sm:w-3 sm:h-3"
           />
-          <span class="text-xs sm:text-sm break-all">{{ repo }}</span>
-          <UIcon
-            name="i-lucide-x"
-            class="ml-1 sm:ml-2 w-2.5 h-2.5 sm:w-3 sm:h-3 opacity-50 group-hover:opacity-100 transition-opacity duration-200"
+          <ULink
+            :to="getRepoUrl(repo)"
+            target="_blank"
+            class="break-all hover:text-primary transition-colors duration-200"
+            @click.stop
+          >
+            {{ repo }}
+          </ULink>
+          <UButton
+            icon="i-lucide-x"
+            variant="ghost"
+            size="xs"
+            color="neutral"
+            class="ml-0.5 -mr-1 opacity-50 hover:opacity-100 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
+            @click="removeRepository(repo)"
           />
-        </UBadge>
+        </div>
       </div>
 
       <div class="text-center">
