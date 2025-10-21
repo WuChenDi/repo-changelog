@@ -260,7 +260,7 @@ function openRepoLink(event: Event, repoName: string) {
         >
           <UIcon
             name="i-lucide-alert-circle"
-            class="w-4 h-4 mt-0.5 flex-shrink-0"
+            class="w-4 h-4 mt-0.5 shrink-0"
           />
           <span>{{ searchError }}</span>
         </p>
@@ -378,7 +378,7 @@ function openRepoLink(event: Event, repoName: string) {
                 variant="ghost"
                 size="xs"
                 color="neutral"
-                class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                 @click="(e) => openRepoLink(e, repo.repo)"
               />
             </div>
@@ -396,7 +396,7 @@ function openRepoLink(event: Event, repoName: string) {
                 >
                   <UIcon
                     name="i-lucide-star"
-                    class="w-3 h-3 flex-shrink-0"
+                    class="w-3 h-3 shrink-0"
                   />
                   <span class="text-xs">{{ repo.stars > 999 ? (repo.stars/1000).toFixed(1) + 'k' : repo.stars }}</span>
                 </div>
@@ -409,7 +409,7 @@ function openRepoLink(event: Event, repoName: string) {
                 >
                   <UIcon
                     name="i-lucide-git-fork"
-                    class="w-3 h-3 flex-shrink-0"
+                    class="w-3 h-3 shrink-0"
                   />
                   <span class="text-xs">{{ repo.forks > 999 ? (repo.forks/1000).toFixed(1) + 'k' : repo.forks }}</span>
                 </div>
@@ -422,7 +422,7 @@ function openRepoLink(event: Event, repoName: string) {
                 >
                   <UIcon
                     name="i-lucide-calendar"
-                    class="w-3 h-3 flex-shrink-0"
+                    class="w-3 h-3 shrink-0"
                   />
                   <span class="text-xs">{{ formatTimeAgo(new Date(repo.updatedAt)) }}</span>
                 </div>
