@@ -43,9 +43,21 @@ function validateRepo(repo: string): boolean {
 
 async function fetchRepoReleases(repo: string) {
   try {
-    const response = await $fetch<{ releases: any[] }>(`${config.public.apiUrl}/repos/${repo}/releases`)
+    const { data: response, error } = await useFetch<{ releases: any[] }>(
+      `${config.public.apiUrl}/repos/${repo}/releases`,
+      {
+        key: `repo-releases-${repo}`,
+        getCachedData: key => useNuxtApp().payload.data[key] || useNuxtApp().static.data[key]
+      }
+    )
+
+    if (error.value || !response.value) {
+      console.warn(`Failed to fetch releases for ${repo}:`, error.value)
+      return []
+    }
+
     return await Promise.all(
-      response.releases
+      response.value.releases
         .filter(r => r.draft === false)
         .map(async release => ({
           url: `https://github.com/${repo}/releases/tag/${release.tag}`,
