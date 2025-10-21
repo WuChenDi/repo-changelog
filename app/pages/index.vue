@@ -111,15 +111,21 @@ async function searchRepositories() {
 
 async function searchSingleRepository(repoName: string) {
   try {
-    const response = await $fetch<RepoApiResponse>(`${config.public.apiUrl}/repos/${repoName}`)
+    const { data: response, error } = await useFetch<RepoApiResponse>(
+      `${config.public.apiUrl}/repos/${repoName}`,
+      {
+        key: `repo-${repoName}`,
+        getCachedData: key => useNuxtApp().payload.data[key] || useNuxtApp().static.data[key]
+      }
+    )
 
-    if (response?.error) {
+    if (error.value || response.value?.error) {
       searchError.value = 'Repository not found or inaccessible'
       return
     }
 
-    if (response?.repo) {
-      searchResults.value = [convertToSearchResult(response.repo)]
+    if (response.value?.repo) {
+      searchResults.value = [convertToSearchResult(response.value.repo)]
       showResults.value = true
     } else {
       searchError.value = 'Repository not found'
@@ -132,15 +138,36 @@ async function searchSingleRepository(repoName: string) {
 
 async function searchOwnerRepositories(owner: string) {
   try {
-    let response: ReposApiResponse
+    let response: ReposApiResponse | null = null
+    let fetchError = null
 
-    try {
-      response = await $fetch<ReposApiResponse>(`${config.public.apiUrl}/orgs/${owner}/repos`)
-    } catch {
-      response = await $fetch<ReposApiResponse>(`${config.public.apiUrl}/users/${owner}/repos`)
+    const { data: orgData, error: orgError } = await useFetch<ReposApiResponse>(
+      `${config.public.apiUrl}/orgs/${owner}/repos`,
+      {
+        key: `org-repos-${owner}`,
+        getCachedData: key => useNuxtApp().payload.data[key] || useNuxtApp().static.data[key]
+      }
+    )
+
+    if (!orgError.value && orgData.value && !orgData.value.error) {
+      response = orgData.value
+    } else {
+      const { data: userData, error: userError } = await useFetch<ReposApiResponse>(
+        `${config.public.apiUrl}/users/${owner}/repos`,
+        {
+          key: `user-repos-${owner}`,
+          getCachedData: key => useNuxtApp().payload.data[key] || useNuxtApp().static.data[key]
+        }
+      )
+
+      if (!userError.value && userData.value) {
+        response = userData.value
+      } else {
+        fetchError = userError.value
+      }
     }
 
-    if (response?.error) {
+    if (fetchError || response?.error) {
       searchError.value = 'User or organization not found'
       return
     }
