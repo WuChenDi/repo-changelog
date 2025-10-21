@@ -5,6 +5,7 @@ import { parseMarkdown } from '@nuxtjs/mdc/runtime'
 const config = useRuntimeConfig()
 const route = useRoute()
 const router = useRouter()
+const { getRepoUrl } = useRepository()
 
 const releases = ref<any[]>([])
 const releasesLoading = ref<boolean>(false)
@@ -119,7 +120,6 @@ onMounted(() => {
     <UPageSection
       :title="sidebarTitle"
       :description="sidebarDescription"
-      orientation="vertical"
       :links="[
         {
           label: 'GitHub',
@@ -185,14 +185,21 @@ onMounted(() => {
               Tracking {{ selectedRepos.length }} {{ selectedRepos.length === 1 ? 'repository' : 'repositories' }}:
             </p>
             <div class="flex flex-wrap gap-1">
-              <UBadge
+              <ULink
                 v-for="repo in selectedRepos.slice(0, 5)"
                 :key="repo"
-                variant="outline"
-                size="xs"
+                :to="getRepoUrl(repo)"
+                target="_blank"
+                class="inline-block"
               >
-                {{ repo }}
-              </UBadge>
+                <UBadge
+                  variant="outline"
+                  size="sm"
+                  class="hover:bg-primary/10 hover:border-primary transition-colors duration-200 cursor-pointer"
+                >
+                  {{ repo }}
+                </UBadge>
+              </ULink>
               <UBadge
                 v-if="selectedRepos.length > 5"
                 variant="outline"
@@ -274,11 +281,6 @@ onMounted(() => {
           :to="release.url"
           target="_blank"
           :title="release.title"
-          :badge="{
-            label: `@${release.repo}`,
-            variant: 'outline',
-            color: 'neutral'
-          }"
           :date="formatTimeAgo(new Date(release.date))"
           :ui="{
             root: 'flex items-start',
@@ -289,6 +291,21 @@ onMounted(() => {
             indicator: 'sticky top-0 pt-16 -mt-16 sm:pt-24 sm:-mt-24 lg:pt-32 lg:-mt-32'
           }"
         >
+          <template #badge>
+            <ULink
+              :to="getRepoUrl(release.repo)"
+              target="_blank"
+              @click.stop
+            >
+              <UBadge
+                :label="`@${release.repo}`"
+                variant="outline"
+                color="neutral"
+                class="hover:bg-primary/10 hover:border-primary transition-colors duration-200"
+              />
+            </ULink>
+          </template>
+
           <template #body>
             <div
               class="relative"
