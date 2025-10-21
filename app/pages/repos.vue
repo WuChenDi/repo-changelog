@@ -7,10 +7,6 @@ const route = useRoute()
 const router = useRouter()
 const { getRepoUrl } = useRepository()
 
-const releases = ref<any[]>([])
-const releasesLoading = ref<boolean>(false)
-const releasesError = ref<string>('')
-
 const selectedRepos = computed(() => {
   if (!route.query.repos) return []
 
@@ -75,28 +71,24 @@ async function fetchRepoReleases(repo: string) {
   }
 }
 
-async function fetchReleases() {
-  if (selectedRepos.value.length === 0) {
-    router.push('/')
-    return
-  }
+const { data: releases, pending: releasesLoading, error: releasesError, refresh } = await useAsyncData(
+  `releases-${selectedRepos.value.join(',')}`,
+  async () => {
+    if (selectedRepos.value.length === 0) {
+      return []
+    }
 
-  releasesLoading.value = true
-  releasesError.value = ''
-
-  try {
     const validRepos = selectedRepos.value.filter(repo => validateRepo(repo))
 
     if (validRepos.length === 0) {
-      releasesError.value = 'No valid repositories found'
-      return
+      throw new Error('No valid repositories found')
     }
 
     const allReleases = await Promise.all(
       validRepos.map(repo => fetchRepoReleases(repo))
     )
 
-    releases.value = allReleases
+    return allReleases
       .flat()
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 50)
@@ -104,21 +96,16 @@ async function fetchReleases() {
         ...release,
         open: false
       }))
-  } catch (error) {
-    console.error('Error fetching releases:', error)
-    releasesError.value = 'Failed to fetch releases'
-  } finally {
-    releasesLoading.value = false
+  },
+  {
+    watch: [() => route.query.repos],
+    getCachedData: key => useNuxtApp().payload.data[key] || useNuxtApp().static.data[key]
   }
-}
+)
 
 function goBackToSelection() {
   router.push('/')
 }
-
-watch(() => route.query.repos, async () => {
-  await fetchReleases()
-}, { immediate: true })
 
 onMounted(() => {
   if (selectedRepos.value.length === 0) {
@@ -258,18 +245,18 @@ onMounted(() => {
             class="w-8 h-8 mx-auto mb-4 text-red-500"
           />
           <p class="text-red-500 mb-4">
-            {{ releasesError }}
+            {{ releasesError.message || 'Failed to fetch releases' }}
           </p>
           <UButton
             variant="outline"
-            @click="fetchReleases"
+            @click="() => refresh()"
           >
             Retry
           </UButton>
         </div>
 
         <div
-          v-else-if="releases.length === 0 && !releasesLoading"
+          v-else-if="!releases || releases.length === 0"
           class="text-center py-8"
         >
           <UIcon
