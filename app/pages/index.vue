@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { formatTimeAgo } from '@vueuse/core'
+import { formatTimeAgo, useStorage } from '@vueuse/core'
 import type { GithubRepo, RepoApiResponse, ReposApiResponse, SearchResult } from '~~/shared/types/releases'
 
 const config = useRuntimeConfig()
@@ -14,6 +14,44 @@ const searchResults = ref<SearchResult[]>([])
 const showResults = ref<boolean>(false)
 const sortBy = ref<'stars' | 'forks' | 'name' | 'updated'>('stars')
 const sortOrder = ref<'asc' | 'desc'>('desc')
+
+const MAX_HISTORY = 10
+
+const repoHistory = useStorage<string[]>('repo-history', [], undefined, {
+  serializer: {
+    read: (v: string) => {
+      try {
+        return JSON.parse(v)
+      } catch (e) {
+        console.error('Failed to parse repo history:', e)
+        return []
+      }
+    },
+    write: (v: string[]) => JSON.stringify(v)
+  }
+})
+
+function saveToHistory(repos: string[]) {
+  const uniqueRepos = [...new Set(repos)]
+  const filteredHistory = repoHistory.value.filter(r => !uniqueRepos.includes(r))
+
+  const newHistory = [
+    ...uniqueRepos,
+    ...filteredHistory
+  ].slice(0, MAX_HISTORY)
+
+  repoHistory.value = newHistory
+}
+
+function addRepoFromHistory(repo: string) {
+  if (!selectedRepos.value.includes(repo)) {
+    selectedRepos.value.push(repo)
+  }
+}
+
+function removeFromHistory(repo: string) {
+  repoHistory.value = repoHistory.value.filter(r => r !== repo)
+}
 
 // Helper function to convert GithubRepo to SearchResult
 function convertToSearchResult(repo: GithubRepo): SearchResult {
@@ -107,6 +145,7 @@ async function searchRepositories() {
           return
         }
 
+        saveToHistory([extracted])
         await router.push({
           path: '/repos',
           query: { repos: extracted }
@@ -253,6 +292,7 @@ async function viewReleases() {
   isLoading.value = true
 
   try {
+    saveToHistory(selectedRepos.value)
     await router.push({
       path: '/repos',
       query: {
@@ -262,10 +302,6 @@ async function viewReleases() {
   } finally {
     isLoading.value = false
   }
-}
-
-function clearAllSelections() {
-  selectedRepos.value = []
 }
 
 function openRepoLink(event: Event, repoName: string) {
@@ -314,7 +350,7 @@ function openRepoLink(event: Event, repoName: string) {
             icon="i-lucide-search"
             :loading="isLoading"
             :disabled="!searchQuery.trim()"
-            size="sm"
+            size="md"
             @click="searchRepositories"
           >
             {{ isLoading ? 'Searching...' : 'Search' }}
@@ -331,6 +367,18 @@ function openRepoLink(event: Event, repoName: string) {
           />
           <span>{{ searchError }}</span>
         </p>
+
+        <RepoList
+          v-if="repoHistory.length > 0"
+          title="Recent Searches"
+          :repos="repoHistory"
+          icon="i-lucide-history"
+          :clickable="true"
+          class="mt-6"
+          @click="addRepoFromHistory"
+          @remove="removeFromHistory"
+          @clear-all="() => repoHistory = []"
+        />
       </div>
     </div>
 
@@ -399,11 +447,10 @@ function openRepoLink(event: Event, repoName: string) {
         >
           <template v-if="selectedRepos.includes(repo.repo)">
             <div
-              class="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent pointer-events-none"
+              class="absolute inset-0 bg-linear-to-br from-primary/10 via-primary/5 to-transparent pointer-events-none"
             />
 
             <div
-              v-if="selectedRepos.includes(repo.repo)"
               class="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-primary rounded-full flex items-center justify-center shadow-lg transform rotate-12 animate-pulse"
             >
               <UIcon
@@ -504,63 +551,17 @@ function openRepoLink(event: Event, repoName: string) {
       v-if="selectedRepos.length > 0"
       class="mb-6 sm:mb-8"
     >
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-        <h3 class="text-lg sm:text-xl font-semibold flex items-center gap-2">
-          <UIcon
-            name="i-lucide-bookmark"
-            class="w-4 h-4 sm:w-5 sm:h-5"
-          />
-          Selected Repositories
-          <UBadge
-            variant="outline"
-            color="primary"
-            size="sm"
-          >
-            {{ selectedRepos.length }}
-          </UBadge>
-        </h3>
-        <UButton
-          variant="ghost"
-          size="sm"
-          icon="i-lucide-trash-2"
-          color="error"
-          class="w-full sm:w-auto justify-center"
-          @click="clearAllSelections"
-        >
-          Clear All
-        </UButton>
-      </div>
+      <RepoList
+        title="Selected Repositories"
+        :repos="selectedRepos"
+        :badge-count="selectedRepos.length"
+        icon="i-lucide-bookmark"
+        :clickable="false"
+        @remove="removeRepository"
+        @clear-all="() => selectedRepos = []"
+      />
 
-      <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
-        <div
-          v-for="repo in selectedRepos"
-          :key="repo"
-          class="group inline-flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 border border-default rounded-full text-xs sm:text-sm transition-all duration-200 animate-in slide-in-from-bottom-2"
-        >
-          <UIcon
-            name="i-lucide-github"
-            class="w-2.5 h-2.5 sm:w-3 sm:h-3"
-          />
-          <ULink
-            :to="getRepoUrl(repo)"
-            target="_blank"
-            class="break-all hover:text-primary transition-colors duration-200"
-            @click.stop
-          >
-            {{ repo }}
-          </ULink>
-          <UButton
-            icon="i-lucide-x"
-            variant="ghost"
-            size="xs"
-            color="neutral"
-            class="ml-0.5 -mr-1 opacity-50 hover:opacity-100 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
-            @click="removeRepository(repo)"
-          />
-        </div>
-      </div>
-
-      <div class="text-center">
+      <div class="text-center mt-4 sm:mt-6">
         <UButton
           :loading="isLoading && selectedRepos.length > 0"
           :disabled="isLoading"
@@ -580,22 +581,6 @@ function openRepoLink(event: Event, repoName: string) {
       </div>
     </div>
 
-    <div
-      v-else
-      class="text-center py-8 sm:py-12"
-    >
-      <div class="text-muted-foreground mb-4">
-        <UIcon
-          name="i-lucide-package-search"
-          class="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 opacity-50"
-        />
-        <p class="text-base sm:text-lg font-medium mb-2">
-          No repositories selected yet
-        </p>
-        <p class="text-sm px-4">
-          Search and add the open source projects you want to track
-        </p>
-      </div>
-    </div>
+    <EmptyState v-else />
   </div>
 </template>
