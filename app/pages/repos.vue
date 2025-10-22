@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { formatTimeAgo } from '@vueuse/core'
+import MDCRenderer from '@nuxtjs/mdc/runtime/components/MDCRenderer.vue'
 import { parseMarkdown } from '@nuxtjs/mdc/runtime'
 
 const config = useRuntimeConfig()
@@ -294,7 +295,7 @@ onMounted(() => {
           :date="formatTimeAgo(new Date(release.date))"
           :ui="{
             root: 'flex items-start',
-            container: 'max-w-xl 2xl:mx-12 w-full',
+            container: '2xl:mx-12 w-full',
             header: 'border-b border-default pb-4',
             title: 'text-3xl',
             date: 'text-xs/9 text-highlighted font-mono',
