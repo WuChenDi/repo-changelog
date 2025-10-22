@@ -43,10 +43,11 @@ function saveToHistory(repos: string[]) {
   repoHistory.value = newHistory
 }
 
-function addRepoFromHistory(repo: string) {
-  if (!selectedRepos.value.includes(repo)) {
-    selectedRepos.value.push(repo)
-  }
+async function navigateToRepo(repo: string) {
+  await router.push({
+    path: '/repos',
+    query: { repos: repo }
+  })
 }
 
 function removeFromHistory(repo: string) {
@@ -146,10 +147,7 @@ async function searchRepositories() {
         }
 
         saveToHistory([extracted])
-        await router.push({
-          path: '/repos',
-          query: { repos: extracted }
-        })
+        await navigateToRepo(extracted)
         return
       } catch (error) {
         console.error('Repository validation error:', error)
@@ -293,12 +291,7 @@ async function viewReleases() {
 
   try {
     saveToHistory(selectedRepos.value)
-    await router.push({
-      path: '/repos',
-      query: {
-        repos: selectedRepos.value.join(',')
-      }
-    })
+    await navigateToRepo(selectedRepos.value.join(','))
   } finally {
     isLoading.value = false
   }
@@ -375,7 +368,7 @@ function openRepoLink(event: Event, repoName: string) {
           icon="i-lucide-history"
           :clickable="true"
           class="mt-6"
-          @click="addRepoFromHistory"
+          @click="navigateToRepo"
           @remove="removeFromHistory"
           @clear-all="() => repoHistory = []"
         />
