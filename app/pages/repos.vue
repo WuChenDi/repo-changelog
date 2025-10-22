@@ -33,6 +33,22 @@ const sidebarDescription = computed(() => {
   return `Latest releases and updates for ${repoCount} selected repositories`
 })
 
+const expandedReleases = ref<Set<string>>(new Set())
+
+function toggleRelease(repo: string, tag: string) {
+  const key = `${repo}-${tag}`
+  if (expandedReleases.value.has(key)) {
+    expandedReleases.value.delete(key)
+  } else {
+    expandedReleases.value.add(key)
+  }
+  expandedReleases.value = new Set(expandedReleases.value)
+}
+
+function isReleaseExpanded(repo: string, tag: string) {
+  return expandedReleases.value.has(`${repo}-${tag}`)
+}
+
 function validateRepo(repo: string): boolean {
   return /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/.test(repo)
 }
@@ -61,8 +77,7 @@ async function fetchRepoReleases(repo: string) {
           tag: release.tag,
           title: release.name || release.tag,
           date: release.publishedAt,
-          body: (await parseMarkdown(release.markdown)).body,
-          open: false
+          body: (await parseMarkdown(release.markdown)).body
         }))
     )
   } catch (error) {
@@ -92,10 +107,6 @@ const { data: releases, pending: releasesLoading, error: releasesError, refresh 
       .flat()
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 50)
-      .map(release => ({
-        ...release,
-        open: false
-      }))
   },
   {
     watch: [() => route.query.repos],
@@ -309,8 +320,8 @@ onMounted(() => {
             <div
               class="relative"
               :class="{
-                'h-auto min-h-[150px] sm:min-h-[200px]': release.open,
-                'h-[150px] sm:h-[200px] overflow-y-hidden': !release.open && release.body.children.length > 4
+                'h-auto min-h-[150px] sm:min-h-[200px]': isReleaseExpanded(release.repo, release.tag),
+                'h-[150px] sm:h-[200px] overflow-y-hidden': !isReleaseExpanded(release.repo, release.tag) && release.body.children.length > 4
               }"
             >
               <MDCRenderer
@@ -319,20 +330,20 @@ onMounted(() => {
                 style="zoom: 0.85"
               />
               <div
-                v-if="!release.open && release.body.children.length > 4"
+                v-if="!isReleaseExpanded(release.repo, release.tag) && release.body.children.length > 4"
                 class="h-12 sm:h-16 absolute inset-x-0 bottom-0 flex items-end justify-center"
-                :class="{ 'bg-gradient-to-t from-default to-default/50': !release.open }"
+                :class="{ 'bg-linear-to-t from-default to-default/50': !isReleaseExpanded(release.repo, release.tag) }"
               >
                 <UButton
                   size="sm"
                   icon="i-lucide-chevron-down"
                   color="neutral"
                   variant="outline"
-                  :data-state="release.open ? 'open' : 'closed'"
-                  :label="release.open ? 'Collapse' : 'Expand'"
+                  :data-state="isReleaseExpanded(release.repo, release.tag) ? 'open' : 'closed'"
+                  :label="isReleaseExpanded(release.repo, release.tag) ? 'Collapse release' : 'Expand release'"
                   class="group text-xs sm:text-sm"
                   :ui="{ leadingIcon: 'group-data-[state=open]:rotate-180' }"
-                  @click="release.open = !release.open"
+                  @click="toggleRelease(release.repo, release.tag)"
                 />
               </div>
             </div>
