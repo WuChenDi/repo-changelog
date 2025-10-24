@@ -151,7 +151,7 @@ onMounted(() => {
       ]"
       :ui="{
         root: 'border-b border-default xl:border-b-0 xl:sticky xl:inset-y-0 xl:h-screen overflow-hidden',
-        container: 'h-full items-center justify-center',
+        container: 'max-w-xl h-full items-center justify-center',
         wrapper: 'flex flex-col',
         headline: 'mb-6',
         title: 'text-left text-4xl',
@@ -295,7 +295,7 @@ onMounted(() => {
           :date="formatTimeAgo(new Date(release.date))"
           :ui="{
             root: 'flex items-start',
-            container: '2xl:mx-12 w-full',
+            container: 'max-w-xl',
             header: 'border-b border-default pb-4',
             title: 'text-3xl',
             date: 'text-xs/9 text-highlighted font-mono',
